@@ -5,6 +5,9 @@ on:
     branches: [main]
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -19,3 +22,24 @@ jobs:
       - run: node --test test/*.test.js
       - name: Dogfood scan (repo must grade A)
         run: node bin/cli.js . && echo "self-scan clean"
+
+  sarif:
+    # Dogfood the SARIF pipeline end-to-end: scan this repo, upload to Code Scanning.
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Generate SARIF
+        run: node bin/cli.js . --sarif > results.sarif
+        continue-on-error: true
+      - name: Upload SARIF to Code Scanning
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: results.sarif
+          category: agent-rules-audit

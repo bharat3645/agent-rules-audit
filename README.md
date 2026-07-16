@@ -25,11 +25,12 @@ npx agent-rules-audit .
 ## Usage
 
 ```bash
-agent-rules-audit [paths...] [--json] [--strict] [--quiet]
+agent-rules-audit [paths...] [--json] [--sarif] [--strict] [--quiet]
 ```
 
 - Scans given paths (default `.`) recursively for known instruction files; skips `node_modules`, `.git`, `dist`, `build`, `vendor`, `target`.
 - `--json` - machine-readable report.
+- `--sarif` - SARIF 2.1.0 output for GitHub Code Scanning, VS Code SARIF Viewer, and other SARIF consumers.
 - `--strict` - exit 1 on **any** finding (for CI gates).
 - `--quiet` - hide clean files in human output.
 
@@ -61,18 +62,48 @@ Files are graded **A-F** (critical=25, high=15, medium=8, low=3 points), plus an
 - run: npx agent-rules-audit . --strict
 ```
 
+## GitHub Code Scanning (SARIF)
+
+`--sarif` emits SARIF 2.1.0 with per-rule `security-severity` metadata, so findings show up as native Code Scanning alerts on the Security tab and inline on pull requests:
+
+```yaml
+name: agent-rules-audit
+on: [push, pull_request]
+
+permissions:
+  security-events: write
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Scan instruction files
+        run: npx agent-rules-audit . --sarif > results.sarif
+        continue-on-error: true # exit code reflects grade; upload alerts regardless
+      - uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: results.sarif
+```
+
+Severity mapping: critical/high → `error`, medium → `warning`, low → `note`; `security-severity` scores (9.5 / 8.0 / 5.0-6.0 / 3.0) drive GitHub's Critical/High/Medium/Low badges.
+
 ## Honest limitations
 
 - **Pattern-based.** It catches known attack shapes, not novel semantics. An A grade is *not* a security guarantee.
-- **It will have false positives** - security docs that *describe* attacks (like this README) will trigger it. That's what human review of findings is for; use `--json` to build allowlists downstream.
+- **It will have false positives** - security docs that *describe* attacks (like this README) will trigger it. That's what human review of findings is for; use `--json` or `--sarif` to build allowlists downstream.
 - It scans instruction files only, by filename/location convention. It does not execute anything or phone home - by design.
 
 ## Roadmap
 
-- SARIF output for code-scanning integration
 - pre-commit hook recipe
 - allowlist/baseline file (`.agent-rules-audit.json`)
 - MCP tool-description drift detection (see sibling project `mcp-sentinel`)
+- npm publish
 
 ## Related projects by the same author
 
