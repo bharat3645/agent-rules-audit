@@ -1,0 +1,20 @@
+# pre-commit hook definition (https://pre-commit.com)
+#
+# Usage in a consuming repo's .pre-commit-config.yaml:
+#
+#   repos:
+#     - repo: https://github.com/bharat3645/agent-rules-audit
+#       rev: v0.3.0
+#       hooks:
+#         - id: agent-rules-audit
+#
+- id: agent-rules-audit
+  name: agent-rules-audit
+  description: >-
+    Scan agent instruction files (AGENTS.md, CLAUDE.md, .cursorrules, skills,
+    MCP configs) for prompt-injection, hidden-Unicode, and exfiltration
+    patterns.
+  entry: agent-rules-audit
+  language: node
+  args: ["--strict", "."]
+  pass_filenames: false
