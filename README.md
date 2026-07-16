@@ -26,6 +26,7 @@ npx agent-rules-audit .
 
 ```bash
 agent-rules-audit [paths...] [--json] [--sarif] [--strict] [--quiet]
+                  [--baseline PATH] [--no-baseline]
 ```
 
 - Scans given paths (default `.`) recursively for known instruction files; skips `node_modules`, `.git`, `dist`, `build`, `vendor`, `target`.
@@ -33,6 +34,7 @@ agent-rules-audit [paths...] [--json] [--sarif] [--strict] [--quiet]
 - `--sarif` - SARIF 2.1.0 output for GitHub Code Scanning, VS Code SARIF Viewer, and other SARIF consumers.
 - `--strict` - exit 1 on **any** finding (for CI gates).
 - `--quiet` - hide clean files in human output.
+- `--baseline PATH` - allowlist file (default: auto-loads `.agent-rules-audit.json` from the working directory); `--no-baseline` disables it.
 
 Exit codes: `0` grade A/B; `2` grade C/D; `3` grade F; `1` any finding under `--strict`; `4` usage error.
 
@@ -92,17 +94,63 @@ jobs:
 
 Severity mapping: critical/high → `error`, medium → `warning`, low → `note`; `security-severity` scores (9.5 / 8.0 / 5.0-6.0 / 3.0) drive GitHub's Critical/High/Medium/Low badges.
 
+## Baseline / allowlist
+
+Some findings are known and accepted - a security README that *describes*
+attacks, a test fixture full of payloads. Put them in
+`.agent-rules-audit.json` at the repo root instead of turning the scanner
+off:
+
+```json
+{
+  "version": 1,
+  "ignore": [
+    { "ruleId": "exfil-network", "path": "README.md", "reason": "docs describe attack endpoints" },
+    { "ruleId": "encoded-payload", "path": "*", "reason": "fixture blobs are expected" }
+  ]
+}
+```
+
+Entries match by `ruleId` + path suffix (`"*"` = any path) - never by line
+number, since lines shift on every edit. Suppressed findings are removed
+before grading and exit codes, counted in the output (`N suppressed by
+baseline`), and excluded from `--json`/`--sarif`. Each entry should carry a
+`reason`: a baseline is a reviewable security decision, and it lives in git
+where changes to it show up in diffs.
+
+## Pre-commit hook
+
+With the [pre-commit](https://pre-commit.com) framework (this repo ships
+`.pre-commit-hooks.yaml`):
+
+```yaml
+repos:
+  - repo: https://github.com/bharat3645/agent-rules-audit
+    rev: v0.3.0
+    hooks:
+      - id: agent-rules-audit
+```
+
+Or as a plain git hook - `.git/hooks/pre-commit`:
+
+```bash
+#!/bin/sh
+node /path/to/agent-rules-audit/bin/cli.js . --strict || {
+  echo "agent-rules-audit found issues in agent instruction files."; exit 1;
+}
+```
+
 ## Honest limitations
 
 - **Pattern-based.** It catches known attack shapes, not novel semantics. An A grade is *not* a security guarantee.
-- **It will have false positives** - security docs that *describe* attacks (like this README) will trigger it. That's what human review of findings is for; use `--json` or `--sarif` to build allowlists downstream.
+- **It will have false positives** - security docs that *describe* attacks (like this README) will trigger it. That's what human review of findings is for; use the baseline file to accept them explicitly, or `--json` to build tooling downstream.
 - It scans instruction files only, by filename/location convention. It does not execute anything or phone home - by design.
 
 ## Roadmap
 
-- pre-commit hook recipe
-- allowlist/baseline file (`.agent-rules-audit.json`)
-- MCP tool-description drift detection (see sibling project `mcp-sentinel`)
+- MCP tool-description drift detection — shipped in sibling project
+  [`mcp-sentinel`](https://github.com/bharat3645/mcp-sentinel) v0.2.0
+  (`lock`/`verify` with tool-schema hashes); cross-integration planned
 - npm publish
 
 ## Related projects by the same author

@@ -3,6 +3,25 @@
 All notable changes to this project are documented here.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/); versions follow SemVer.
 
+## [0.3.0] - 2026-07-16
+
+### Added
+- **Baseline / allowlist** (`.agent-rules-audit.json`): accept specific known
+  findings (docs that describe attacks, payload fixtures) without disabling
+  the scanner. Entries match by `ruleId` + path suffix (`"*"` for any path),
+  never by line number; each carries a `reason`. Auto-loaded from the working
+  directory, override with `--baseline PATH`, disable with `--no-baseline`.
+  Suppressed findings are removed before grading/exit codes, surfaced as a
+  count in human output and a `suppressed` field in `--json`.
+- **Pre-commit support**: `.pre-commit-hooks.yaml` for the pre-commit
+  framework (`repo: …/agent-rules-audit`, `id: agent-rules-audit`) plus a
+  plain git-hook recipe in the README.
+- 8 new tests (suite 27 → 35).
+
+### Fixed
+- CLI argument parsing: first positional path is no longer swallowed when no
+  `--baseline` flag is present (caught by the test suite during development).
+
 ## [0.2.0] - 2026-07-16
 
 ### Added
