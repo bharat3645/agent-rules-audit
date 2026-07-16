@@ -84,7 +84,7 @@ jobs:
       - name: Scan instruction files
         run: npx agent-rules-audit . --sarif > results.sarif
         continue-on-error: true # exit code reflects grade; upload alerts regardless
-      - uses: github/codeql-action/upload-sarif@v3
+      - uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:
           sarif_file: results.sarif
