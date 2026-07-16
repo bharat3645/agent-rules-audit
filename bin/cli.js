@@ -3,7 +3,7 @@
  * agent-rules-audit — offline scanner for AI agent instruction files.
  *
  * Usage:
- *   agent-rules-audit [paths...] [--json] [--strict] [--quiet]
+ *   agent-rules-audit [paths...] [--json] [--sarif] [--strict] [--quiet]
  *
  * Exit codes:
  *   0  overall grade A or B (or no findings with --strict)
@@ -13,6 +13,7 @@
  */
 
 import { audit } from "../lib/scanner.js";
+import { toSarif } from "../lib/sarif.js";
 
 const args = process.argv.slice(2);
 const flags = new Set(args.filter((a) => a.startsWith("--")));
@@ -21,9 +22,13 @@ if (paths.length === 0) paths.push(".");
 
 if (flags.has("--help") || flags.has("-h")) {
   console.log(
-    "agent-rules-audit [paths...] [--json] [--strict] [--quiet]\n" +
+    "agent-rules-audit [paths...] [--json] [--sarif] [--strict] [--quiet]\n" +
       "Scans AGENTS.md / CLAUDE.md / .cursorrules / .claude skills & agents /\n" +
-      "MCP configs for injection, exfiltration and hidden-Unicode patterns.",
+      "MCP configs for injection, exfiltration and hidden-Unicode patterns.\n\n" +
+      "  --json    machine-readable report\n" +
+      "  --sarif   SARIF 2.1.0 output (GitHub Code Scanning, VS Code)\n" +
+      "  --strict  exit 1 on any finding (CI gate)\n" +
+      "  --quiet   hide clean files in human output",
   );
   process.exit(0);
 }
@@ -38,7 +43,9 @@ try {
 
 const SEV_ICON = { critical: "✖", high: "▲", medium: "●", low: "·" };
 
-if (flags.has("--json")) {
+if (flags.has("--sarif")) {
+  console.log(JSON.stringify(toSarif(report), null, 2));
+} else if (flags.has("--json")) {
   console.log(JSON.stringify(report, null, 2));
 } else {
   console.log(`agent-rules-audit v${report.version} — ${report.scannedFiles} file(s) scanned\n`);
