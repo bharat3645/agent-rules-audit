@@ -3,6 +3,26 @@
 All notable changes to this project are documented here.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/); versions follow SemVer.
 
+## [Unreleased]
+
+Documentation/example polish — no code changes.
+
+- **Real worked example**: README now shows an actual poisoned `CLAUDE.md`
+  (hidden zero-width Unicode + instruction override + exfiltration +
+  autonomy-escalation phrasing, the kind that ships in a vendored
+  dependency) and the tool's real, unedited output against it — 8
+  findings across 5 rule categories, grade F, exit 3. Previously the
+  README only showed one-line CLI invocations, never what a real finding
+  looks like.
+- **Architecture diagram** (Mermaid): file discovery → per-file scan →
+  baseline suppression → grading → output rendering. Previously prose-only.
+- **Fixed**: "What it detects" table was missing `oversize-file` (low
+  severity — flags instruction files over the size cap instead of
+  silently skipping the deep scan) — the table said 10 rules, the scanner
+  has 11 (confirmed by counting rule definitions directly: 8 in
+  `lib/rules.js`'s pattern array + `hidden-unicode` + `encoded-payload` +
+  `oversize-file`).
+
 ## [0.3.0] - 2026-07-16
 
 ### Added
