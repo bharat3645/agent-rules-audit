@@ -1,5 +1,7 @@
 # agent-rules-audit
 
+[![CI](https://github.com/bharat3645/agent-rules-audit/actions/workflows/ci.yml/badge.svg)](https://github.com/bharat3645/agent-rules-audit/actions/workflows/ci.yml)
+
 **Your AI agent takes instructions from files in your repo. Who audits the files?**
 
 `agent-rules-audit` is an offline scanner for agent instruction files - `AGENTS.md`, `CLAUDE.md`, `.cursorrules`, `.windsurfrules`, `.claude/skills/**`, Copilot instructions, MCP configs. It flags the patterns used in real instruction-file poisoning attacks: hidden Unicode smuggling, encoded payloads, instruction overrides, exfiltration directives, silent-execution and permission-bypass phrasing.
