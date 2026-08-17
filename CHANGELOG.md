@@ -22,6 +22,14 @@ Documentation/example polish — no code changes.
   has 11 (confirmed by counting rule definitions directly: 8 in
   `lib/rules.js`'s pattern array + `hidden-unicode` + `encoded-payload` +
   `oversize-file`).
+- **Demo recording** (`demo/agent-rules-audit-demo.cast`, linked from the
+  README): a real asciinema terminal session — the same poisoned vendored
+  `CLAUDE.md` from the Example section scores a real F, a `SECURITY.md`
+  that only quotes attack phrasing for reviewer training is shown as a
+  genuine false positive (also F), then a `.agent-rules-audit.json`
+  baseline entry with a reason clears it to A while the real payload
+  stays F. Recorded against the real CLI, replayed to confirm before
+  committing.
 
 ## [0.3.0] - 2026-07-16
 

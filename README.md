@@ -127,6 +127,21 @@ Pattern-based detection: findings need human judgment; absence of findings is no
 
 `echo $?` after that run is `3` (grade F), matching the exit codes below.
 
+## Demo
+
+A real terminal recording of the flow above, plus the baseline story: the
+same poisoned vendored `CLAUDE.md` gets a real F, then a `SECURITY.md` that
+only *quotes* attack phrasing for reviewer training — a genuine false
+positive — also gets flagged, and a `.agent-rules-audit.json` baseline
+entry (with a reason) clears it to A while the real payload above stays F:
+
+```bash
+asciinema play demo/agent-rules-audit-demo.cast
+```
+
+(local playback — [install asciinema](https://asciinema.org/docs/installation)
+if you don't have it; no account/upload needed.)
+
 ## CI example (GitHub Actions)
 
 ```yaml
