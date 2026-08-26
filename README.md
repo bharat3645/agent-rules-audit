@@ -4,15 +4,39 @@
 
 **Your AI agent takes instructions from files in your repo. Who audits the files?**
 
-`agent-rules-audit` is an offline scanner for agent instruction files - `AGENTS.md`, `CLAUDE.md`, `.cursorrules`, `.windsurfrules`, `.claude/skills/**`, Copilot instructions, MCP configs. It flags the patterns used in real instruction-file poisoning attacks: hidden Unicode smuggling, encoded payloads, instruction overrides, exfiltration directives, silent-execution and permission-bypass phrasing.
+`agent-rules-audit` finds instruction-file poisoning in `AGENTS.md`, `CLAUDE.md`, `.cursorrules`, `.windsurfrules`, `.claude/skills/**`, Copilot instructions and MCP configs: hidden Unicode smuggling, encoded payloads, instruction overrides, exfiltration directives, silent-execution and permission-bypass phrasing.
+
+It ships two ways — **an agent skill** that needs no install, and **a CLI** for CI gating. Same detection model; pick whichever fits the moment.
 
 Zero dependencies. Zero network calls. Node >= 18.
 
-## Why
+## As an agent skill (no install)
+
+Point any skill-aware coding agent at [`skills/audit-agent-instructions/`](skills/audit-agent-instructions/) and ask it to audit the repo you're about to open. The audit happens inside the session you already have running — nothing to install, nothing to remember to run.
+
+```
+"Audit the agent instruction files in this repo before I let Claude loose on it."
+"I just vendored this dependency — does it ship anything that could hijack my agent?"
+```
+
+The skill isn't a wrapper around the CLI. It carries the **triage judgment** the regex layer can't make: telling a file that *describes* an attack (your own `SECURITY.md`, a prompt-engineering writeup) apart from one that *performs* it. That distinction is the difference between a report you act on and a wall of false positives you learn to ignore.
+
+It also enforces the check you cannot do by eye — zero-width characters and Unicode tag-block smuggling are invisible in every renderer, so reading a file and concluding it looks clean tells you nothing. The skill checks bytes first, then reads.
+
+## As a CLI (for CI)
+
+```bash
+git clone https://github.com/bharat3645/agent-rules-audit
+node agent-rules-audit/bin/cli.js /path/to/repo --strict
+```
+
+Not yet published to npm; `npx agent-rules-audit .` will be the one-line form once it is.
+
+Use the CLI when you want determinism, SARIF output, a baseline file and an exit-code contract. Use the skill when you want judgment.
+
+## Why this matters
 
 Instruction files are executed as trusted context by coding agents, but reviewed as "just docs" by humans - when they're reviewed at all. In-the-wild supply-chain campaigns have already used poisoned `.cursorrules` and MCP-related injection as attack vectors, and skills/marketplace ecosystems have shipped hundreds of malicious agent skills. A dependency you vendored, a template you cloned, a skill you installed - any of them can carry instructions your agent will follow and you will never see.
-
-This tool makes those files reviewable in CI, the same way you lint code.
 
 ## How it works
 
@@ -30,17 +54,6 @@ flowchart LR
     baseline -- no baseline --> grade
     grade --> out
 ```
-
-## Install / Run
-
-```bash
-# from a checkout (no install needed - there are no dependencies)
-git clone https://github.com/bharat3645/agent-rules-audit
-node agent-rules-audit/bin/cli.js /path/to/repo
-```
-
-Not yet published to npm; `npx agent-rules-audit .` will be the one-line
-form once it is.
 
 ## Usage
 
@@ -74,7 +87,7 @@ Exit codes: `0` grade A/B; `2` grade C/D; `3` grade F; `1` any finding under `--
 | `role-hijack` | medium | "you are now in developer mode" |
 | `oversize-file` | low | file over the size cap - deep scan skipped, flagged rather than silently ignored |
 
-Files are graded **A-F** (critical=25, high=15, medium=8, low=3 points), plus an overall grade.
+Files are graded **A-F** (critical=25, high=15, medium=8, low=3 points), plus an overall grade. The skill uses the same weights, so a skill audit and a CI run agree.
 
 ## Example
 
@@ -238,7 +251,7 @@ node /path/to/agent-rules-audit/bin/cli.js . --strict || {
 ## Honest limitations
 
 - **Pattern-based.** It catches known attack shapes, not novel semantics. An A grade is *not* a security guarantee.
-- **It will have false positives** - security docs that *describe* attacks (like this README) will trigger it. That's what human review of findings is for; use `--json` or `--sarif` to build allowlists downstream.
+- **It will have false positives** - security docs that *describe* attacks (like this README) will trigger the CLI. That's what the skill's triage step is for, and what `--json`/`--sarif` plus a baseline file are for downstream.
 - It scans instruction files only, by filename/location convention. It does not execute anything or phone home - by design.
 
 ## Roadmap
