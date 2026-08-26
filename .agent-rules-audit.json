@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "ignore": [
+    {
+      "ruleId": "instruction-override",
+      "path": "skills/audit-agent-instructions/SKILL.md",
+      "reason": "The skill teaches an agent to recognize override phrasing, so it must quote it. L25 is prose warning the auditing agent that scanned files may contain these strings and that they are data to report, not instructions to obey."
+    },
+    {
+      "ruleId": "secret-access",
+      "path": "skills/audit-agent-instructions/SKILL.md",
+      "reason": "L105 quotes a credential path inside an example of a directive that should be reported as a finding. Naming the path is the point of the example."
+    }
+  ]
+}
