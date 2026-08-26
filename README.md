@@ -34,18 +34,19 @@ flowchart LR
 ## Install / Run
 
 ```bash
-# from a checkout (no install needed)
-node bin/cli.js /path/to/repo
-
-# or via npx once published
-npx agent-rules-audit .
+# from a checkout (no install needed - there are no dependencies)
+git clone https://github.com/bharat3645/agent-rules-audit
+node agent-rules-audit/bin/cli.js /path/to/repo
 ```
+
+Not yet published to npm; `npx agent-rules-audit .` will be the one-line
+form once it is.
 
 ## Usage
 
 ```bash
-agent-rules-audit [paths...] [--json] [--sarif] [--strict] [--quiet]
-                  [--baseline PATH] [--no-baseline]
+node bin/cli.js [paths...] [--json] [--sarif] [--strict] [--quiet]
+                [--baseline PATH] [--no-baseline]
 ```
 
 - Scans given paths (default `.`) recursively for known instruction files; skips `node_modules`, `.git`, `dist`, `build`, `vendor`, `target`.
@@ -148,8 +149,13 @@ if you don't have it; no account/upload needed.)
 - uses: actions/checkout@v4
 - uses: actions/setup-node@v4
   with: { node-version: 22 }
-- run: npx agent-rules-audit . --strict
+- name: Scan instruction files
+  run: |
+    git clone --depth 1 https://github.com/bharat3645/agent-rules-audit /tmp/ara
+    node /tmp/ara/bin/cli.js . --strict
 ```
+
+Once published to npm this collapses to `npx agent-rules-audit . --strict`.
 
 ## GitHub Code Scanning (SARIF)
 
@@ -170,8 +176,10 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
+      - name: Fetch scanner
+        run: git clone --depth 1 https://github.com/bharat3645/agent-rules-audit /tmp/ara
       - name: Scan instruction files
-        run: npx agent-rules-audit . --sarif > results.sarif
+        run: node /tmp/ara/bin/cli.js . --sarif > results.sarif
         continue-on-error: true # exit code reflects grade; upload alerts regardless
       - uses: github/codeql-action/upload-sarif@v4
         if: always()
@@ -235,10 +243,10 @@ node /path/to/agent-rules-audit/bin/cli.js . --strict || {
 
 ## Roadmap
 
+- npm publish (the package is ready — `bin` and `engines` are set; the name is unclaimed)
 - MCP tool-description drift detection — shipped in sibling project
   [`mcp-sentinel`](https://github.com/bharat3645/mcp-sentinel) v0.2.0
   (`lock`/`verify` with tool-schema hashes); cross-integration planned
-- npm publish
 
 ## Related projects by the same author
 
