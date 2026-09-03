@@ -1,6 +1,6 @@
 ---
 name: audit-agent-instructions
-description: Audit AI agent instruction files — AGENTS.md, CLAUDE.md, .cursorrules, .windsurfrules, .github/copilot-instructions.md, .claude/skills/**, and MCP server configs — for prompt-injection and supply-chain poisoning: hidden Unicode smuggling, encoded payloads, instruction overrides, exfiltration directives, and permission-bypass phrasing. Use this skill whenever the user is reviewing or adding agent instruction files, vendoring or updating a dependency that ships them, installing a third-party agent skill / plugin / MCP server, cloning an unfamiliar repo they intend to open with a coding agent, or asking whether something is safe to let an agent read — even if they never say the words "security", "audit", or "injection".
+description: "Audit AI agent instruction files — AGENTS.md, CLAUDE.md, .cursorrules, .windsurfrules, .github/copilot-instructions.md, .claude/skills/**, and MCP server configs — for prompt-injection and supply-chain poisoning (hidden Unicode smuggling, encoded payloads, instruction overrides, exfiltration directives, and permission-bypass phrasing). Use this skill whenever the user is reviewing or adding agent instruction files, vendoring or updating a dependency that ships them, installing a third-party agent skill / plugin / MCP server, cloning an unfamiliar repo they intend to open with a coding agent, or asking whether something is safe to let an agent read — even if they never say the words \"security\", \"audit\", or \"injection\"."
 ---
 
 # Auditing agent instruction files
