@@ -4,8 +4,8 @@ Ten categories, ordered by severity. Each lists what it looks like, why it earns
 its severity, and where it commonly produces false positives.
 
 Severity weights match the `agent-rules-audit` scanner so a skill-based audit
-and a CI run agree: critical 25, high 15, medium 8, low 3. Grades: A ≤ 10,
-B ≤ 25, C ≤ 50, D ≤ 100, F > 100.
+and a CI run agree: critical 25, high 15, medium 8, low 3. Grades: A = 0,
+B ≤ 8, C ≤ 20, D ≤ 40, F > 40.
 
 ---
 
