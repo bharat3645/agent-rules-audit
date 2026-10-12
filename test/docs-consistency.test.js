@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { grade } from "../lib/rules.js";
+import { RULE_METADATA } from "../lib/sarif.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const docPath = join(
@@ -40,4 +41,42 @@ test("skill reference doc's grade thresholds match the scanner's grade()", () =>
   // "F > N" means N itself is the top of D's range; N+1 is the first F.
   assert.equal(grade(f), "D", `doc's F threshold (${f}) should still grade D (F starts just above it)`);
   assert.equal(grade(f + 1), "F", `doc's F threshold (${f}) + 1 does not grade F in the real scanner`);
+});
+
+// The doc's opening line states the catalogue size in words ("Ten
+// categories", "Eleven categories", ...). An auditor who trusts that count
+// while skimming could miss a real rule the scanner emits but the doc never
+// documents, or could flag a documented category the scanner no longer has.
+const NUMBER_WORDS = {
+  eight: 8,
+  nine: 9,
+  ten: 10,
+  eleven: 11,
+  twelve: 12,
+  thirteen: 13,
+  fourteen: 14,
+};
+
+test("skill reference doc's stated category count matches both its own headings and the scanner's rule metadata", () => {
+  const doc = readFileSync(docPath, "utf8");
+
+  const headingCount = (doc.match(/^### /gm) ?? []).length;
+  assert.equal(
+    headingCount,
+    RULE_METADATA.length,
+    `detection-patterns.md documents ${headingCount} rule(s) but the scanner ` +
+      `(lib/sarif.js RULE_METADATA) emits ${RULE_METADATA.length} -- the catalogue ` +
+      "is out of sync with what the tool actually detects",
+  );
+
+  const m = doc.match(/(\w+) categories,/);
+  assert.ok(m, "detection-patterns.md should open with '<N-in-words> categories, ...'");
+  const statedWord = m[1].toLowerCase();
+  const statedCount = NUMBER_WORDS[statedWord];
+  assert.ok(statedCount !== undefined, `unrecognized number word "${m[1]}" in docs-consistency test's NUMBER_WORDS map`);
+  assert.equal(
+    statedCount,
+    headingCount,
+    `doc's intro says "${m[1]} categories" (${statedCount}) but lists ${headingCount} "### " headings`,
+  );
 });

@@ -1,6 +1,6 @@
 # Detection catalogue
 
-Ten categories, ordered by severity. Each lists what it looks like, why it earns
+Eleven categories, ordered by severity. Each lists what it looks like, why it earns
 its severity, and where it commonly produces false positives.
 
 Severity weights match the `agent-rules-audit` scanner so a skill-based audit
