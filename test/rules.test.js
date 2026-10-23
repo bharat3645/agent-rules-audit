@@ -72,6 +72,14 @@ test("detects zero-width characters", () => {
   assert.equal(hit.severity, "critical");
 });
 
+test("detects the full word-joiner/invisible-operator range U+2060-U+2064", () => {
+  for (const cp of [0x2060, 0x2061, 0x2062, 0x2063, 0x2064]) {
+    const f = scanText("hidden" + String.fromCharCode(cp) + "payload here");
+    const hit = f.find((x) => x.ruleId === "hidden-unicode");
+    assert.ok(hit, `expected hidden-unicode for U+${cp.toString(16)}`);
+  }
+});
+
 test("detects bidi override characters", () => {
   const f = scanText("safe " + String.fromCharCode(0x202e) + "reversed" + String.fromCharCode(0x202c) + " text");
   assert.ok(idsOf(f).includes("hidden-unicode"));
