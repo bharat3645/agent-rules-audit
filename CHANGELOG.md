@@ -5,6 +5,20 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/); versions
 
 ## [Unreleased]
 
+- **Fixed**: `hidden-unicode` missed the U+200E/U+200F directional marks
+  (LRM/RLM) — invisible bidi marks in the same smuggling class as the
+  zero-width and word-joiner characters this rule already caught. The
+  skill's own manual-check command
+  (`skills/audit-agent-instructions/SKILL.md`) already told a reader to
+  grep for `\x{200B}-\x{200F}`, but the shipped `lib/rules.js` regex only
+  covered `\x{200B}-\x{200D}`, silently missing the two directional marks.
+  Moved them into the bidi-override check (`BIDI_RE`) so the reported
+  "kind" text is accurate. Also fixed two stale "ten categories" mentions
+  in `SKILL.md` (the catalogue has been eleven since the `oversize-file`
+  fix below) and extended the skill's own suggested `rg` command to cover
+  `\x{00AD}` and `\x{2066}-\x{2069}`, which the scanner already detected
+  but the manual-check command didn't mention.
+
 Documentation/example polish — no code changes.
 
 - **Real worked example**: README now shows an actual poisoned `CLAUDE.md`

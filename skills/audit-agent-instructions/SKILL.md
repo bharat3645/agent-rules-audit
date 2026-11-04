@@ -51,7 +51,7 @@ Do this before reading anything, because it changes how you read everything
 after it:
 
 ```bash
-rg -n --pcre2 '[\x{200B}-\x{200F}\x{202A}-\x{202E}\x{2060}-\x{2064}\x{FEFF}\x{E0000}-\x{E007F}]' <files>
+rg -n --pcre2 '[\x{200B}-\x{200F}\x{202A}-\x{202E}\x{2060}-\x{2064}\x{2066}-\x{2069}\x{00AD}\x{FEFF}\x{E0000}-\x{E007F}]' <files>
 ```
 
 Any hit is **critical**. There is no legitimate reason for a zero-width space or
@@ -71,10 +71,10 @@ each codepoint to recover the character.
 ### 3. Read each file and classify against the detection catalogue
 
 Load `references/detection-patterns.md` for the full catalogue with severities
-and real trigger examples. The ten categories, in short: hidden Unicode,
+and real trigger examples. The eleven categories, in short: hidden Unicode,
 instruction override, concealment, network exfiltration, data exfiltration,
-secret access, dangerous execution, encoded payload, autonomy escalation, and
-role hijack.
+secret access, dangerous execution, encoded payload, autonomy escalation,
+role hijack, and oversize files.
 
 Decode any base64 or hex blob over ~40 characters rather than noting its
 presence. A blob that decodes to readable English prose in a file with no
@@ -170,5 +170,5 @@ adds the triage judgment that a regex cannot make.
 
 ## Reference
 
-- `references/detection-patterns.md` — the ten categories with severities,
+- `references/detection-patterns.md` — the eleven categories with severities,
   real trigger examples, and the reasoning behind each severity assignment.

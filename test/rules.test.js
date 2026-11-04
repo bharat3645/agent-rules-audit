@@ -85,6 +85,14 @@ test("detects bidi override characters", () => {
   assert.ok(idsOf(f).includes("hidden-unicode"));
 });
 
+test("detects the LRM/RLM directional marks U+200E-U+200F", () => {
+  for (const cp of [0x200e, 0x200f]) {
+    const f = scanText("hidden" + String.fromCharCode(cp) + "payload here");
+    const hit = f.find((x) => x.ruleId === "hidden-unicode");
+    assert.ok(hit, `expected hidden-unicode for U+${cp.toString(16)}`);
+  }
+});
+
 test("detects Unicode tag-block smuggling", () => {
   const smuggled = "hello" + String.fromCodePoint(0xe0069) + String.fromCodePoint(0xe0067);
   const f = scanText(smuggled);
