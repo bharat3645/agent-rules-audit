@@ -75,7 +75,7 @@ Exit codes: `0` grade A/B; `2` grade C/D; `3` grade F; `1` any finding under `--
 
 | Rule | Severity | Example trigger |
 |---|---|---|
-| `hidden-unicode` | critical | zero-width chars, bidi overrides, Unicode tag-block (ASCII smuggling) |
+| `hidden-unicode` | critical | every Unicode default-ignorable / bidi-control code point: zero-width chars, bidi overrides, variation-selector smuggling, Unicode tag-block (ASCII smuggling) |
 | `instruction-override` | critical | "ignore all previous instructions" |
 | `concealment` | critical | "do not tell the user" |
 | `exfil-network` | critical | `curl https://...`, webhook.site / ngrok / raw-IP endpoints |

@@ -51,11 +51,14 @@ Do this before reading anything, because it changes how you read everything
 after it:
 
 ```bash
-rg -n --pcre2 '[\x{200B}-\x{200F}\x{202A}-\x{202E}\x{2060}-\x{2064}\x{2066}-\x{2069}\x{00AD}\x{FEFF}\x{E0000}-\x{E007F}]' <files>
+rg -n --pcre2 '[\x{200B}-\x{200F}\x{202A}-\x{202E}\x{2060}-\x{206F}\x{00AD}\x{034F}\x{061C}\x{115F}\x{1160}\x{17B4}\x{17B5}\x{180B}-\x{180F}\x{3164}\x{FFA0}\x{FEFF}\x{E0000}-\x{E0FFF}]|[\x{FE00}-\x{FE0F}]{2,}|[\x00-\x7F][\x{FE00}-\x{FE0E}]' <files>
 ```
 
 Any hit is **critical**. There is no legitimate reason for a zero-width space or
-a right-to-left override to appear in an agent instruction file. To see what is
+a right-to-left override to appear in an agent instruction file. The last two
+alternatives catch variation-selector smuggling: a selector is normal directly
+after an emoji (`⚠️`, `1️⃣`), but a run of them, or one attached to plain ASCII
+text, is an invisible byte channel. To see what is
 actually hidden there:
 
 ```bash

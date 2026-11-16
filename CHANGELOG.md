@@ -5,6 +5,21 @@ Format loosely follows [Keep a Changelog](https://keepachangelog.com/); versions
 
 ## [Unreleased]
 
+- **Fixed**: `hidden-unicode` missed variation-selector smuggling entirely.
+  A complete injection payload encoded as variation selectors
+  (`U+FE00`–`U+FE0F`, `U+E0100`–`U+E01EF`) after a single emoji produced
+  zero findings and grade A. A census against Unicode's own properties
+  showed the hand-maintained range list covered 149 of the 4,174
+  `Default_Ignorable_Code_Point` / `Bidi_Control` code points; also missed
+  were `U+061C`, `U+034F`, the Hangul and Khmer fillers, `U+2065`,
+  `U+206A`–`U+206F` and tag-plane code points above `U+E007F`. Detection
+  is now driven by the Unicode properties, with a test that walks every
+  code point so the class cannot regress one range at a time.
+- **Fixed**: emoji ZWJ sequences (`👨‍👩‍👧`, `🏳️‍🌈`) were reported as critical
+  hidden Unicode. A zero-width joiner between two pictographs, and a
+  variation selector directly after an emoji, keycap digit, Han or
+  Mongolian base, are no longer findings; everywhere else they still are.
+
 - **Fixed**: `hidden-unicode` missed the U+200E/U+200F directional marks
   (LRM/RLM) — invisible bidi marks in the same smuggling class as the
   zero-width and word-joiner characters this rule already caught. The

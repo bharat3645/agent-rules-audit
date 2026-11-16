@@ -13,11 +13,28 @@ B ≤ 8, C ≤ 20, D ≤ 40, F > 40.
 
 ### hidden-unicode
 
-Zero-width characters (`U+200B`–`U+200D`), bidirectional overrides
-(`U+202A`–`U+202E`), word joiners (`U+2060`–`U+2064`), BOM in mid-file
-(`U+FEFF`), and Unicode tag-block (`U+E0000`–`U+E007F`).
+Any code point Unicode marks `Default_Ignorable_Code_Point` or
+`Bidi_Control` — the scanner tests the properties themselves rather than a
+range list. That covers zero-width characters (`U+200B`–`U+200D`),
+directional marks and bidirectional overrides (`U+200E`–`U+200F`, `U+061C`,
+`U+202A`–`U+202E`, `U+2066`–`U+2069`), word joiners and invisible operators
+(`U+2060`–`U+206F`), soft hyphen (`U+00AD`), BOM (`U+FEFF`), Hangul and
+Khmer fillers (`U+115F`, `U+1160`, `U+3164`, `U+FFA0`, `U+17B4`, `U+17B5`),
+variation selectors (`U+FE00`–`U+FE0F`, `U+E0100`–`U+E01EF`, `U+180B`–`U+180F`)
+and the whole tag plane (`U+E0000`–`U+E0FFF`).
 
-Critical without exception, including inside documentation. Every other category
+Variation selectors are the one place context matters, because emoji use
+them legitimately. A selector is ignored only directly after a base it can
+vary: an emoji or symbol (`⚠️`), a keycap digit (`1️⃣`), a Han ideograph
+(ideographic selectors) or a Mongolian letter. A selector after ASCII text,
+after another selector, or at the start of a line varies nothing and is a
+byte-carrying covert channel — the technique behind invisible-payload
+worms in extension marketplaces. A zero-width joiner is likewise ignored
+only between two pictographs (`👨‍👩‍👧`). Known residual: one selector per
+visible emoji is accepted, so a file that is mostly emoji could carry a few
+hidden bytes.
+
+Critical without exception beyond the emoji cases above, including inside documentation. Every other category
 is a judgment call about intent; this one is not, because no legitimate authoring
 workflow emits these into an instruction file. The concealment *is* the attack —
 text a human reviewer physically cannot see, delivered to a reader that parses
